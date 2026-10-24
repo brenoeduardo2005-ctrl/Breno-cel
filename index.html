@@ -47,6 +47,7 @@ main{max-width:850px;margin:16px auto;padding:0 12px}.tabs{display:flex;gap:8px;
 </form></div>
 <div class="card no-print"><h2>Enviar ao cliente</h2><p class="small">Um só botão: envia a OS em PDF com uma mensagem contendo o aparelho e o status atual. Confira e confirme o envio no WhatsApp.</p><div id="savedActions" class="actions hidden">
 <button onclick="saveCurrentAndSendOrder()">📲 Enviar OS + status no WhatsApp</button>
+<button class="dark" onclick="sendStatusWhatsApp()">💬 Enviar status ao cliente</button>
 </div></div>
 </section>
 <section id="historySection" class="hidden"><div class="card"><h2>Histórico de ordens</h2><input id="search" placeholder="Buscar por cliente, telefone ou aparelho" oninput="renderHistory()"><div id="historyList"></div></div></section>
@@ -165,6 +166,27 @@ async function buildPdfBlob(o){
  if(o.assinatura){if(y>245){doc.addPage();y=18}doc.setFont('helvetica','bold');doc.setFontSize(11);doc.text('Assinatura do cliente',left,y);y+=3;try{doc.addImage(o.assinatura,'PNG',left,y,65,25);y+=29}catch(e){}}
  if(y>265){doc.addPage();y=18}doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(90,90,90);doc.text('Breno Cel • Guarde este documento. O envio ao cliente depende da sua confirmação.',left,285);
  return doc.output('blob');
+}
+function sendStatusWhatsApp(){
+ const o=getCurrent();
+ if(!o){alert('Salve ou selecione uma ordem de serviço primeiro.');return}
+ if(!o.cliente||!o.telefone||!o.modelo){alert('Preencha o nome do cliente, WhatsApp e modelo do aparelho.');return}
+ const name=o.cliente, model=o.modelo, id=o.id;
+ const messages={
+ 'Recebido':'Olá, '+name+'! Aqui é da Breno Cel. Recebemos seu aparelho '+model+' e registramos a ordem de serviço '+id+'. Vamos manter você informado sobre o andamento.',
+ 'Em diagnóstico':'Olá, '+name+'! Aqui é da Breno Cel. Seu aparelho '+model+' está em diagnóstico. Assim que tivermos uma avaliação, avisaremos você.',
+ 'Aguardando aprovação':'Olá, '+name+'! Aqui é da Breno Cel. Já avaliamos seu aparelho '+model+' e estamos aguardando sua aprovação para continuar o serviço. Se precisar, estamos à disposição.',
+ 'Aguardando peça':'Olá, '+name+'! Aqui é da Breno Cel. O conserto do seu aparelho '+model+' está aguardando a chegada da peça. Avisaremos assim que houver atualização.',
+ 'Em conserto':'Olá, '+name+'! Aqui é da Breno Cel. Seu aparelho '+model+' já está em conserto. Avisaremos você assim que houver novidades.',
+ 'Pronto para retirada':'Olá, '+name+'! Boas notícias! Seu aparelho '+model+' está pronto para retirada na Breno Cel. Pode nos chamar por aqui para combinar.',
+ 'Concluído':'Olá, '+name+'! Aqui é da Breno Cel. O serviço do seu aparelho '+model+' foi concluído. Entre em contato para combinar a retirada.',
+ 'Entregue':'Olá, '+name+'! Aqui é da Breno Cel. Registramos a entrega do seu aparelho '+model+'. Obrigado por confiar em nosso trabalho!',
+ 'Sem conserto':'Olá, '+name+'! Aqui é da Breno Cel. Após a avaliação, não foi possível realizar o conserto do aparelho '+model+'. Se tiver dúvidas, estamos à disposição.'
+ };
+ const msg=messages[o.status]||('Olá, '+name+'! Aqui é da Breno Cel. Atualização da OS '+id+', aparelho '+model+': status atual - '+o.status+'.');
+ const phone=normalizePhone(o.telefone);
+ if(!phone){alert('Confira o número de WhatsApp do cliente.');return}
+ window.location.href='https://wa.me/'+phone+'?text='+encodeURIComponent(msg);
 }
 async function sharePDF(){
  const o=getCurrent();if(!o){alert('Salve uma ordem primeiro.');return}
