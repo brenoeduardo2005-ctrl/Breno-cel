@@ -1,4 +1,4 @@
-const CACHE_NAME = 'breno-cel-os-v13';
+const CACHE_NAME = 'breno-cel-os-v14';
 const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)));
