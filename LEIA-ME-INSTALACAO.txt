@@ -1,0 +1,23 @@
+BRENO CEL — APLICATIVO INSTALÁVEL (PWA)
+
+Este pacote prepara o aplicativo para ser instalado na tela inicial do celular e no computador.
+Ele NÃO é um APK nativo. Para aparecer a opção “Instalar app”, publique todos os arquivos deste pacote em um endereço HTTPS.
+
+PUBLICAÇÃO:
+1. Extraia o ZIP.
+2. Envie TODOS os arquivos para um serviço de hospedagem HTTPS (por exemplo, GitHub Pages ou Netlify).
+3. Abra o endereço publicado no Chrome/Edge.
+
+ANDROID:
+Chrome → menu ⋮ → “Instalar app” ou “Adicionar à tela inicial”.
+
+IPHONE/IPAD:
+Safari → Compartilhar → “Adicionar à Tela de Início”.
+
+WINDOWS / COMPUTADOR:
+Chrome ou Edge → menu ⋮ → “Instalar Breno Cel” (ou ícone de instalação na barra de endereço).
+
+IMPORTANTE:
+- Abrir o HTML diretamente do ZIP/arquivo não habilita instalação PWA completa.
+- Os dados de ordens ficam armazenados localmente no navegador/dispositivo e não sincronizam automaticamente entre celular e computador.
+- Faça cópias de segurança dos dados e teste antes de usar em produção.
