@@ -168,6 +168,23 @@ async function buildPdfBlob(o){
  if(y>265){doc.addPage();y=18}doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(90,90,90);doc.text('Breno Cel • Guarde este documento. O envio ao cliente depende da sua confirmação.',left,285);
  return doc.output('blob');
 }
+function chooseAndSendOrderStatus(id){
+ const o=orders.find(x=>x.id===id);if(!o){alert('Não encontrei essa ordem.');return}
+ const answer=prompt('Escolha o status para enviar ao cliente:\n\n1 - Pronto para retirada\n2 - Concluído\n3 - Sem conserto\n\nDigite 1, 2 ou 3:');
+ if(answer===null)return;
+ const options={'1':'Pronto para retirada','2':'Concluído','3':'Sem conserto'};
+ const chosen=options[answer.trim()];if(!chosen){alert('Opção inválida. Escolha 1, 2 ou 3.');return}
+ if(!o.cliente||!o.telefone||!o.modelo){alert('Confira se a ordem tem nome, WhatsApp e modelo do aparelho.');return}
+ const n=normalizePhone(o.telefone);if(!n){alert('Confira o número de WhatsApp do cliente.');return}
+ o.status=chosen;const idx=orders.findIndex(x=>x.id===o.id);if(idx>=0)orders[idx]=o;
+ saveAll();renderHistory();
+ const msgs={
+ 'Pronto para retirada':'Olá, '+o.cliente+'! Boas notícias! Seu aparelho '+o.modelo+' está pronto para retirada na Breno Cel. Pode nos chamar para combinar.',
+ 'Concluído':'Olá, '+o.cliente+'! Aqui é da Breno Cel. O serviço do seu aparelho '+o.modelo+' foi concluído. Entre em contato para combinar a retirada. Obrigado pela confiança!',
+ 'Sem conserto':'Olá, '+o.cliente+'! Aqui é da Breno Cel. Após a avaliação, não foi possível realizar o conserto do seu aparelho '+o.modelo+'. Se tiver dúvidas, estamos à disposição.'
+ };
+ window.location.href='https://wa.me/'+n+'?text='+encodeURIComponent(msgs[chosen]);
+}
 function sendSelectedStatusFromHistory(){
  const chosen=$('statusToSend')?$('statusToSend').value:'';
  const id=currentId||$('osId').value;
@@ -233,7 +250,7 @@ async function sharePDF(){
   window.location.href=waUrl;
  }catch(e){alert('Não consegui gerar o PDF. Tente novamente. Detalhe: '+(e.message||e))}
 }
-function renderHistory(){const q=($('search').value||'').toLowerCase();const list=orders.filter(o=>[o.id,o.cliente,o.telefone,o.modelo].join(' ').toLowerCase().includes(q));$('historyList').innerHTML=list.length?list.map(o=>`<div class="item"><strong>${esc(o.id)} • ${esc(o.cliente)}</strong><div>${esc(o.modelo)} — ${esc(o.telefone)}</div><span class="pill">${esc(o.status)}</span><div class="actions"><button onclick="editOrder('${o.id}')">Abrir / editar</button><button class="secondary" onclick="selectOrder('${o.id}');setTimeout(sharePDF,150)">Enviar OS + status</button><button class="dark" onclick="selectOrder(this.dataset.id);setTimeout(sendStatusWhatsApp,150)" data-id="${o.id}">Enviar status</button><button class="danger" onclick="deleteOrder('${o.id}')">Excluir</button></div></div>`).join(''):'<p class="small">Nenhuma ordem encontrada.</p>'}
+function renderHistory(){const q=($('search').value||'').toLowerCase();const list=orders.filter(o=>[o.id,o.cliente,o.telefone,o.modelo].join(' ').toLowerCase().includes(q));$('historyList').innerHTML=list.length?list.map(o=>`<div class="item"><strong>${esc(o.id)} • ${esc(o.cliente)}</strong><div>${esc(o.modelo)} — ${esc(o.telefone)}</div><span class="pill">${esc(o.status)}</span><div class="actions"><button onclick="editOrder('${o.id}')">Abrir / editar</button><button class="secondary" onclick="selectOrder('${o.id}');setTimeout(sharePDF,150)">Enviar OS + status</button><button class="dark" onclick="chooseAndSendOrderStatus('${o.id}')">Status</button><button class="danger" onclick="deleteOrder('${o.id}')">Excluir</button></div></div>`).join(''):'<p class="small">Nenhuma ordem encontrada.</p>'}
 function selectOrder(id){currentId=id;showForm();$('savedActions').classList.remove('hidden');$('formTitle').textContent='Ordem '+id+' selecionada'}
 function editOrder(id){const o=orders.find(x=>x.id===id);if(!o)return;currentId=id;showForm();Object.keys({cliente:1,telefone:1,modelo:1,imei:1,defeito:1,observacao:1,servico:1,valor:1,entrada:1,previsao:1,status:1,garantia:1}).forEach(k=>$(k).value=o[k]||'');$('osId').value=id;photoData=o.foto||'';signatureData=o.assinatura||'';if(photoData){$('fotoPreview').src=photoData;$('fotoPreview').style.display='block'}else $('fotoPreview').style.display='none';setupCanvas();$('formTitle').textContent='Editar ordem '+id;$('savedActions').classList.remove('hidden')}
 function deleteOrder(id){if(confirm('Excluir esta ordem?')){orders=orders.filter(o=>o.id!==id);saveAll();renderHistory()}}
