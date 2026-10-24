@@ -45,9 +45,8 @@ main{max-width:850px;margin:16px auto;padding:0 12px}.tabs{display:flex;gap:8px;
 </div>
 <div class="actions no-print"><button type="submit">Salvar ordem</button><button type="button" class="secondary" onclick="resetForm()">Limpar</button></div>
 </form></div>
-<div class="card no-print"><h2>Enviar ao cliente</h2><p class="small">Escolha uma das duas ações. O WhatsApp abrirá para você conferir e confirmar o envio.</p><div id="savedActions" class="actions hidden">
-<button onclick="sharePDF()">📄 Enviar OS + mensagem no WhatsApp</button>
-<button class="dark" onclick="saveCurrentAndNotifyStatus()">💬 Avisar status no WhatsApp</button>
+<div class="card no-print"><h2>Enviar ao cliente</h2><p class="small">Um só botão: envia a OS em PDF com uma mensagem contendo o aparelho e o status atual. Confira e confirme o envio no WhatsApp.</p><div id="savedActions" class="actions hidden">
+<button onclick="saveCurrentAndSendOrder()">📲 Enviar OS + status no WhatsApp</button>
 </div></div>
 </section>
 <section id="historySection" class="hidden"><div class="card"><h2>Histórico de ordens</h2><input id="search" placeholder="Buscar por cliente, telefone ou aparelho" oninput="renderHistory()"><div id="historyList"></div></div></section>
@@ -124,6 +123,16 @@ function saveCurrentAndNotifyStatus(){
  currentId=id;$('osId').value=id;$('formTitle').textContent='Ordem '+id+' salva';$('savedActions').classList.remove('hidden');
  notifyStatus();
 }
+function saveCurrentAndSendOrder(){
+ const form=$('osForm');if(!form.reportValidity())return;
+ const id=$('osId').value||('BC-'+Date.now().toString().slice(-8));
+ const old=orders.find(o=>o.id===id);
+ const o={id,cliente:$('cliente').value.trim(),telefone:$('telefone').value.trim(),modelo:$('modelo').value.trim(),aparelho:$('modelo').value.trim(),imei:$('imei').value.trim(),defeito:$('defeito').value.trim(),observacao:$('observacao').value.trim(),acessorios:$('observacao').value.trim(),servico:$('servico').value.trim(),valor:$('valor').value,entrada:$('entrada').value,previsao:$('previsao').value,status:$('status').value,garantia:$('garantia').value.trim(),foto:photoData||old?.foto||'',assinatura:signatureData||old?.assinatura||'',atualizado:new Date().toISOString()};
+ const i=orders.findIndex(x=>x.id===id);if(i>=0)orders[i]=o;else orders.unshift(o);
+ try{saveAll()}catch(err){alert('Não consegui salvar a ordem. '+(err.message||''));return}
+ currentId=id;$('osId').value=id;$('formTitle').textContent='Ordem '+id+' salva';$('savedActions').classList.remove('hidden');
+ sharePDF();
+}
 function openWhatsApp(){notifyStatus()}
 function notifyStatus(){
  const o=getCurrent();if(!o){alert('Salve ou selecione uma ordem primeiro.');return}
@@ -174,7 +183,7 @@ async function sharePDF(){
   alert('Seu aparelho não permite anexar PDF e texto juntos pelo compartilhamento. O PDF foi baixado e a conversa abriu com a mensagem. Anexe o PDF apenas se o WhatsApp não o tiver incluído.');
  }catch(e){if(e&&e.name==='AbortError')return;alert('Não consegui compartilhar a ordem. Tente novamente. Detalhe: '+(e.message||e))}
 }
-function renderHistory(){const q=($('search').value||'').toLowerCase();const list=orders.filter(o=>[o.id,o.cliente,o.telefone,o.modelo].join(' ').toLowerCase().includes(q));$('historyList').innerHTML=list.length?list.map(o=>`<div class="item"><strong>${esc(o.id)} • ${esc(o.cliente)}</strong><div>${esc(o.modelo)} — ${esc(o.telefone)}</div><span class="pill">${esc(o.status)}</span><div class="actions"><button onclick="editOrder('${o.id}')">Abrir / editar</button><button class="secondary" onclick="selectOrder('${o.id}');setTimeout(sharePDF,150)">Enviar PDF</button><button onclick="selectOrder('${o.id}');setTimeout(notifyStatus,150)">Avisar status</button><button class="danger" onclick="deleteOrder('${o.id}')">Excluir</button></div></div>`).join(''):'<p class="small">Nenhuma ordem encontrada.</p>'}
+function renderHistory(){const q=($('search').value||'').toLowerCase();const list=orders.filter(o=>[o.id,o.cliente,o.telefone,o.modelo].join(' ').toLowerCase().includes(q));$('historyList').innerHTML=list.length?list.map(o=>`<div class="item"><strong>${esc(o.id)} • ${esc(o.cliente)}</strong><div>${esc(o.modelo)} — ${esc(o.telefone)}</div><span class="pill">${esc(o.status)}</span><div class="actions"><button onclick="editOrder('${o.id}')">Abrir / editar</button><button class="secondary" onclick="selectOrder('${o.id}');setTimeout(sharePDF,150)">Enviar OS + status</button><button class="danger" onclick="deleteOrder('${o.id}')">Excluir</button></div></div>`).join(''):'<p class="small">Nenhuma ordem encontrada.</p>'}
 function selectOrder(id){currentId=id;showForm();$('savedActions').classList.remove('hidden');$('formTitle').textContent='Ordem '+id+' selecionada'}
 function editOrder(id){const o=orders.find(x=>x.id===id);if(!o)return;currentId=id;showForm();Object.keys({cliente:1,telefone:1,modelo:1,imei:1,defeito:1,observacao:1,servico:1,valor:1,entrada:1,previsao:1,status:1,garantia:1}).forEach(k=>$(k).value=o[k]||'');$('osId').value=id;photoData=o.foto||'';signatureData=o.assinatura||'';if(photoData){$('fotoPreview').src=photoData;$('fotoPreview').style.display='block'}else $('fotoPreview').style.display='none';setupCanvas();$('formTitle').textContent='Editar ordem '+id;$('savedActions').classList.remove('hidden')}
 function deleteOrder(id){if(confirm('Excluir esta ordem?')){orders=orders.filter(o=>o.id!==id);saveAll();renderHistory()}}
