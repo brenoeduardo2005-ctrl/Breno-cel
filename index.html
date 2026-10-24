@@ -169,21 +169,18 @@ async function buildPdfBlob(o){
 async function sharePDF(){
  const o=getCurrent();if(!o){alert('Salve uma ordem primeiro.');return}
  if(!o.cliente||!o.telefone||!o.modelo){alert('Preencha cliente, WhatsApp e modelo do aparelho.');return}
+ const n=normalizePhone(o.telefone);
+ const msg=`Olá, ${o.cliente}! Aqui é da Breno Cel. O aparelho ${o.modelo} (OS ${o.id}) está com o status: ${o.status}. ${o.servico?'Serviço: '+o.servico+'. ':''}${o.valor?'Valor: '+money(o.valor)+'. ':''}Segue a ordem de serviço em PDF. Qualquer dúvida, estamos à disposição!`;
+ const waUrl='https://wa.me/'+n+'?text='+encodeURIComponent(msg);
  try{
   const blob=await buildPdfBlob(o);
-  const file=new File([blob],`BrenoCel_OS_${o.id}.pdf`,{type:'application/pdf'});
-  const msg=`Olá, ${o.cliente}! Aqui é da Breno Cel. O aparelho ${o.modelo} (OS ${o.id}) está com o status: ${o.status}. ${o.servico?'Serviço: '+o.servico+'. ':''}${o.valor?'Valor: '+money(o.valor)+'. ':''}Segue também a ordem de serviço em PDF. Qualquer dúvida, estamos à disposição!`;
-  const n=normalizePhone(o.telefone);
-  const waUrl='https://wa.me/'+n+'?text='+encodeURIComponent(msg);
-  if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
-   await navigator.share({files:[file],title:`Ordem de Serviço ${o.id} - Breno Cel`});
-   window.location.href=waUrl;
-   return;
-  }
-  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=file.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
+  const fileName=`BrenoCel_OS_${o.id}.pdf`;
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=fileName;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),60000);
+  alert('PDF baixado. Na próxima tela do WhatsApp, a mensagem estará pronta. Anexe o PDF que ficou na pasta Downloads e toque em Enviar.');
   window.location.href=waUrl;
-  alert('O PDF foi baixado e a conversa do cliente abriu com a mensagem pronta. Se o PDF não tiver sido enviado pelo compartilhamento, anexe-o nesta conversa.');
- }catch(e){if(e&&e.name==='AbortError')return;alert('Não consegui compartilhar a ordem. Tente novamente. Detalhe: '+(e.message||e))}
+ }catch(e){alert('Não consegui gerar o PDF. Tente novamente. Detalhe: '+(e.message||e))}
 }
 function renderHistory(){const q=($('search').value||'').toLowerCase();const list=orders.filter(o=>[o.id,o.cliente,o.telefone,o.modelo].join(' ').toLowerCase().includes(q));$('historyList').innerHTML=list.length?list.map(o=>`<div class="item"><strong>${esc(o.id)} • ${esc(o.cliente)}</strong><div>${esc(o.modelo)} — ${esc(o.telefone)}</div><span class="pill">${esc(o.status)}</span><div class="actions"><button onclick="editOrder('${o.id}')">Abrir / editar</button><button class="secondary" onclick="selectOrder('${o.id}');setTimeout(sharePDF,150)">Enviar OS + status</button><button class="danger" onclick="deleteOrder('${o.id}')">Excluir</button></div></div>`).join(''):'<p class="small">Nenhuma ordem encontrada.</p>'}
 function selectOrder(id){currentId=id;showForm();$('savedActions').classList.remove('hidden');$('formTitle').textContent='Ordem '+id+' selecionada'}
