@@ -47,7 +47,8 @@ main{max-width:850px;margin:16px auto;padding:0 12px}.tabs{display:flex;gap:8px;
 </form></div>
 <div class="card no-print"><h2>Enviar ao cliente</h2><p class="small">Um só botão: envia a OS em PDF com uma mensagem contendo o aparelho e o status atual. Confira e confirme o envio no WhatsApp.</p><div id="savedActions" class="actions hidden">
 <button onclick="saveCurrentAndSendOrder()">📲 Enviar OS + status no WhatsApp</button>
-<button class="dark" onclick="sendStatusWhatsApp()">💬 Enviar status ao cliente</button>
+<label for="statusToSend">Escolha o status para enviar</label><select id="statusToSend"><option>Pronto para retirada</option><option>Concluído</option><option>Sem conserto</option></select>
+<button class="dark" onclick="sendSelectedStatusWhatsApp()">📲 Enviar status no WhatsApp</button>
 </div></div>
 </section>
 <section id="historySection" class="hidden"><div class="card"><h2>Histórico de ordens</h2><input id="search" placeholder="Buscar por cliente, telefone ou aparelho" oninput="renderHistory()"><div id="historyList"></div></div></section>
@@ -166,6 +167,17 @@ async function buildPdfBlob(o){
  if(o.assinatura){if(y>245){doc.addPage();y=18}doc.setFont('helvetica','bold');doc.setFontSize(11);doc.text('Assinatura do cliente',left,y);y+=3;try{doc.addImage(o.assinatura,'PNG',left,y,65,25);y+=29}catch(e){}}
  if(y>265){doc.addPage();y=18}doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(90,90,90);doc.text('Breno Cel • Guarde este documento. O envio ao cliente depende da sua confirmação.',left,285);
  return doc.output('blob');
+}
+function sendSelectedStatusWhatsApp(){
+ const o=getCurrent();
+ if(!o){alert('Salve ou selecione uma ordem de serviço primeiro.');return}
+ const chosen=$('statusToSend')?$('statusToSend').value:'';
+ if(!chosen){alert('Selecione o status para enviar.');return}
+ o.status=chosen;
+ const idx=orders.findIndex(x=>x.id===o.id);if(idx>=0)orders[idx]=o;
+ if($('status'))$('status').value=chosen;
+ saveAll();renderHistory();
+ sendStatusWhatsApp();
 }
 function sendStatusWhatsApp(){
  const o=getCurrent();
