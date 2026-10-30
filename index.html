@@ -256,7 +256,7 @@ function chooseAndSendOrderStatus(id){
  saveAll();renderHistory();
  const msgs={
  'Pronto para retirada':'Olá, '+o.cliente+'! Aqui é da Breno Cel.\nO serviço do seu aparelho 👇\nAparelho: '+o.modelo+'\nStatus: '+chosen+'\nOrdem de serviço nº: '+o.id+'\nValor total: '+(o.valor?money(o.valor):'A combinar')+'.\nValor restante a pagar: '+(o.valor?money(o.saldoRestantePago===true?0:(Number(o.valor)*0.5)):'A combinar')+'.\nEntre em contato para combinar a retirada. Obrigado pela confiança!',
- 'Concluído':'Olá, '+o.cliente+'! Aqui é da Breno Cel.\nO serviço do seu aparelho 👇\nAparelho: '+o.modelo+'\nStatus: Concluído\nOrdem de serviço nº: '+o.id+'\nValor total: '+(o.valor?money(o.valor):'A combinar')+'.\nValor restante a pagar: '+(o.valor?money(o.saldoRestantePago===true?0:(Number(o.valor)*0.5)):'A combinar')+'.\nEntre em contato para combinar a retirada. Obrigado pela confiança!',
+ 'Concluído':'Olá, '+o.cliente+'! Aqui é da Breno Cel.\n\nO serviço do seu aparelho 👇\n\n📱 Aparelho: '+o.modelo+'\n\n📌 Status: Concluído\n\n🧾 Ordem de serviço nº: '+o.id+'\n\n💰 Valor: '+(o.valor?money(o.valor):'A combinar')+'.\n\nEntre em contato para combinar a retirada. Obrigado pela confiança! 🤝',
  'Sem conserto':'Olá, '+o.cliente+'! Aqui é da Breno Cel. Após a avaliação, não foi possível realizar o conserto do seu aparelho '+o.modelo+'. Se tiver dúvidas, estamos à disposição.'
  };
  window.location.href='https://wa.me/'+n+'?text='+encodeURIComponent(msgs[chosen]);
@@ -275,7 +275,7 @@ function sendSelectedStatusFromHistory(){
  const msgs={
  'Recebido':'Olá, '+o.cliente+'! Aqui é da Breno Cel.\n\n📱 Aparelho: '+o.modelo+'\n\n📌 Status: Recebido\n\n🧾 Ordem de serviço nº: '+o.id+'\n\n💰 Valor: '+(o.valor?money(o.valor):'A combinar')+'.',
  'Pronto para retirada':'Olá, '+o.cliente+'! Aqui é da Breno Cel.\nO serviço do seu aparelho 👇\nAparelho: '+o.modelo+'\nStatus: '+chosen+'\nOrdem de serviço nº: '+o.id+'\nValor total: '+(o.valor?money(o.valor):'A combinar')+'.\nValor restante a pagar: '+(o.valor?money(o.saldoRestantePago===true?0:(Number(o.valor)*0.5)):'A combinar')+'.\nEntre em contato para combinar a retirada. Obrigado pela confiança!',
- 'Concluído':'Olá, '+o.cliente+'! Aqui é da Breno Cel. O serviço do seu aparelho '+o.modelo+' foi concluído. Entre em contato para combinar a retirada. Obrigado pela confiança!',
+ 'Concluído':'Olá, '+o.cliente+'! Aqui é da Breno Cel.\n\nO serviço do seu aparelho 👇\n\n📱 Aparelho: '+o.modelo+'\n\n📌 Status: Concluído\n\n🧾 Ordem de serviço nº: '+o.id+'\n\n💰 Valor: '+(o.valor?money(o.valor):'A combinar')+'.\n\nEntre em contato para combinar a retirada. Obrigado pela confiança! 🤝',
  'Sem conserto':'Olá, '+o.cliente+'! Aqui é da Breno Cel. Após a avaliação, não foi possível realizar o conserto do seu aparelho '+o.modelo+'. Se tiver dúvidas, estamos à disposição.'
  };
  window.location.href='https://wa.me/'+n+'?text='+encodeURIComponent(msgs[chosen]);
@@ -304,7 +304,7 @@ function sendStatusWhatsApp(){
  'Aguardando peça':'Olá, '+name+'! Aqui é da Breno Cel. O conserto do seu aparelho '+model+' está aguardando a chegada da peça. Avisaremos assim que houver atualização.',
  'Em conserto':'Olá, '+name+'! Aqui é da Breno Cel. Seu aparelho '+model+' já está em conserto. Avisaremos você assim que houver novidades.',
  'Pronto para retirada':'Olá, '+name+'! Aqui é da Breno Cel.\nO serviço do seu aparelho 👇\nAparelho: '+model+'\nStatus: '+o.status+'\nOrdem de serviço nº: '+id+'\nValor total: '+(o.valor?money(o.valor):'A combinar')+'.\nValor restante a pagar: '+(o.valor?money(o.saldoRestantePago===true?0:(Number(o.valor)*0.5)):'A combinar')+'.\nEntre em contato para combinar a retirada. Obrigado pela confiança!',
- 'Concluído':'Olá, '+name+'! Aqui é da Breno Cel.\nO serviço do seu aparelho 👇\nAparelho: '+model+'\nStatus: Concluído\nOrdem de serviço nº: '+id+'\nValor total: '+(o.valor?money(o.valor):'A combinar')+'.\nValor restante a pagar: '+(o.valor?money(o.saldoRestantePago===true?0:(Number(o.valor)*0.5)):'A combinar')+'.\nEntre em contato para combinar a retirada. Obrigado pela confiança!',
+ 'Concluído':'Olá, '+name+'! Aqui é da Breno Cel.\n\nO serviço do seu aparelho 👇\n\n📱 Aparelho: '+model+'\n\n📌 Status: Concluído\n\n🧾 Ordem de serviço nº: '+id+'\n\n💰 Valor: '+(o.valor?money(o.valor):'A combinar')+'.\n\nEntre em contato para combinar a retirada. Obrigado pela confiança! 🤝',
  'Entregue':'Olá, '+name+'! Aqui é da Breno Cel. Registramos a entrega do seu aparelho '+model+'. Obrigado por confiar em nosso trabalho!',
  'Sem conserto':'Olá, '+name+'! Aqui é da Breno Cel. Após a avaliação, não foi possível realizar o conserto do aparelho '+model+'. Se tiver dúvidas, estamos à disposição.'
  };
