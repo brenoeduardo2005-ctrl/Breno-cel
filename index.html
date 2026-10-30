@@ -57,7 +57,7 @@ main{max-width:850px;margin:16px auto;padding:0 12px}.tabs{display:flex;gap:8px;
 <button class="dark" onclick="sendSelectedStatusFromHistory()">📲 Enviar status no WhatsApp</button>
 </div></div>
 </section>
-<section id="historySection" class="hidden"><div class="card"><h2>Histórico de ordens</h2><input id="search" placeholder="Buscar por cliente, telefone ou aparelho" oninput="renderHistory()"><div id="historyList"></div></div></section>
+<section id="historySection" class="hidden"><div class="card"><h2>Histórico de ordens</h2><div class="actions no-print"><button type="button" class="secondary" onclick="exportBackup()">⬇️ Fazer backup das OS</button><label for="backupFile" class="secondary" style="display:inline-block;padding:12px;border-radius:12px;cursor:pointer">⬆️ Restaurar backup</label><input id="backupFile" type="file" accept=".json,application/json" style="display:none" onchange="importBackup(this)"></div><p class="small">Faça backup regularmente e guarde o arquivo em local seguro. Ele pode conter dados de clientes e senhas autorizadas.</p><input id="search" placeholder="Buscar por cliente, telefone ou aparelho" oninput="renderHistory()"><div id="historyList"></div></div></section>
 </main>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
@@ -66,20 +66,37 @@ const today=new Date().toISOString().slice(0,10);$('entrada').value=today;
 function load(){
  try{
   const current=JSON.parse(localStorage.getItem('brenocel_orders')||'null');
-  if(Array.isArray(current)){orders=current;return}
-  const legacy=JSON.parse(localStorage.getItem('breno_os_v1')||'[]');
-  orders=(Array.isArray(legacy)?legacy:[]).map(o=>({...o,modelo:o.modelo||o.aparelho||'',observacao:o.observacao||o.acessorios||'',foto:o.foto||'',garantia:o.garantia??'90'}));
-  if(orders.length)saveAll();
- }catch{orders=[]}
+  const legacy=JSON.parse(localStorage.getItem('breno_os_v1')||'null');
+  const backup=JSON.parse(localStorage.getItem('brenocel_backup')||'null');
+  if(Array.isArray(current)&&current.length){orders=current;return}
+  if(Array.isArray(legacy)&&legacy.length){orders=legacy.map(o=>({...o,modelo:o.modelo||o.aparelho||'',observacao:o.observacao||o.acessorios||'',foto:o.foto||'',garantia:o.garantia??'90'}));saveAll();return}
+  if(Array.isArray(backup)&&backup.length){orders=backup;saveAll();return}
+  orders=Array.isArray(current)?current:[];
+ }catch(e){orders=[];console.error('Não foi possível ler as OS salvas',e)}
 }
 function saveAll(){
  const data=JSON.stringify(orders);
- try{localStorage.setItem('brenocel_orders',data)}
- catch(e){
-  try{localStorage.removeItem('breno_os_v1');localStorage.setItem('brenocel_orders',data)}
-  catch(err){throw new Error('O armazenamento do navegador está cheio ou bloqueado. Libere espaço do site e tente salvar novamente.')}
+ try{
+  const previous=localStorage.getItem('brenocel_orders');
+  if(previous&&previous!=='[]')localStorage.setItem('brenocel_backup',previous);
+  localStorage.setItem('brenocel_orders',data);
+  localStorage.setItem('breno_os_v1',data);
+ }catch(e){
+  try{localStorage.setItem('brenocel_orders',data)}catch(err){throw new Error('Armazenamento cheio ou bloqueado. Exporte um backup e libere espaço do navegador.')}
  }
- try{localStorage.setItem('breno_os_v1',data)}catch(e){}
+}
+function exportBackup(){
+ const data={app:'Breno Cel',version:1,exportedAt:new Date().toISOString(),orders};
+ const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+ const url=URL.createObjectURL(blob),a=document.createElement('a');
+ a.href=url;a.download='backup-breno-cel-'+new Date().toISOString().slice(0,10)+'.json';a.click();
+ setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function importBackup(input){
+ const file=input.files&&input.files[0];if(!file)return;
+ const reader=new FileReader();
+ reader.onload=()=>{try{const parsed=JSON.parse(reader.result);const incoming=Array.isArray(parsed)?parsed:parsed.orders;if(!Array.isArray(incoming))throw new Error('Arquivo inválido');if(!confirm('Importar '+incoming.length+' OS? Isso substituirá a lista atual. Faça backup antes de continuar.'))return;orders=incoming;saveAll();renderHistory();alert('Backup importado com sucesso.');}catch(e){alert('Não foi possível importar. Selecione um backup válido da Breno Cel.');}finally{input.value='';}};
+ reader.readAsText(file);
 }
 function showForm(){ $('formSection').classList.remove('hidden');$('historySection').classList.add('hidden')}
 function showHistory(){ $('formSection').classList.add('hidden');$('historySection').classList.remove('hidden');renderHistory()}
