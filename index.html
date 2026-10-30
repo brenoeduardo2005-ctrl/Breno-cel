@@ -58,7 +58,7 @@ main{max-width:850px;margin:16px auto;padding:0 12px}.tabs{display:flex;gap:8px;
 <div class="actions no-print"><button type="submit">Salvar ordem</button><button type="button" class="secondary" onclick="resetForm()">Limpar</button></div>
 </form></div>
 <div class="card no-print"><h2>Enviar ao cliente</h2><p class="small">Escolha o status da ordem e envie a mensagem correspondente ao cliente pelo WhatsApp.</p><div id="savedActions" class="actions hidden">
-<label for="statusToSend">Escolha o status para enviar</label><select id="statusToSend"><option>Recebido</option><option>Em conserto</option><option>Pronto para retirada</option><option>Concluído</option><option>Sem conserto</option></select>
+<label for="statusToSend">Escolha o status para enviar</label><select id="statusToSend"><option>Em conserto</option><option>Pronto para retirada</option><option>Sem conserto</option></select>
 <button class="dark" onclick="sendSelectedStatusFromHistory()">📲 Enviar status no WhatsApp</button>
 </div></div>
 </section>
@@ -272,6 +272,7 @@ function sendSelectedStatusFromHistory(){
  saveAll();renderHistory();
  const n=normalizePhone(o.telefone);if(!n){alert('Confira o número de WhatsApp do cliente.');return}
  const msgs={
+ 'Em conserto':'Olá, '+o.cliente+'! Aqui é da Breno Cel.\n\n📱 Aparelho: '+o.modelo+'\n\n📌 Status: Em conserto\n\n🧾 Ordem de serviço nº: '+o.id+'\n\n💰 Valor: '+(o.valor?money(o.valor):'A combinar')+'.\n\nEstamos trabalhando no seu aparelho e avisaremos quando estiver pronto. Obrigado pela confiança! 🤝',
  'Recebido':'Olá, '+o.cliente+'! Aqui é da Breno Cel.\n\n📱 Aparelho: '+o.modelo+'\n\n📌 Status: Recebido\n\n🧾 Ordem de serviço nº: '+o.id+'\n\n💰 Valor: '+(o.valor?money(o.valor):'A combinar')+'.',
  'Pronto para retirada':'Olá, '+o.cliente+'! Aqui é da Breno Cel.\nO serviço do seu aparelho 👇\nAparelho: '+o.modelo+'\nStatus: '+chosen+'\nOrdem de serviço nº: '+o.id+'\nValor total: '+(o.valor?money(o.valor):'A combinar')+'.\nValor restante a pagar: '+(o.valor?money(o.saldoRestantePago===true?0:(Number(o.valor)*0.5)):'A combinar')+'.\nEntre em contato para combinar a retirada. Obrigado pela confiança!',
  'Concluído':'Olá, '+o.cliente+'! Aqui é da Breno Cel.\n\nO serviço do seu aparelho 👇\n\n📱 Aparelho: '+o.modelo+'\n\n📌 Status: Concluído\n\n🧾 Ordem de serviço nº: '+o.id+'\n\n💰 Valor: '+(o.valor?money(o.valor):'A combinar')+'.\n\nEntre em contato para combinar a retirada. Obrigado pela confiança! 🤝',
@@ -301,7 +302,7 @@ function sendStatusWhatsApp(){
  'Em diagnóstico':'Olá, '+name+'! Aqui é da Breno Cel. Seu aparelho '+model+' está em diagnóstico. Assim que tivermos uma avaliação, avisaremos você.',
  'Aguardando aprovação':'Olá, '+name+'! Aqui é da Breno Cel. Já avaliamos seu aparelho '+model+' e estamos aguardando sua aprovação para continuar o serviço. Se precisar, estamos à disposição.',
  'Aguardando peça':'Olá, '+name+'! Aqui é da Breno Cel. O conserto do seu aparelho '+model+' está aguardando a chegada da peça. Avisaremos assim que houver atualização.',
- 'Em conserto':'Olá, '+name+'! Aqui é da Breno Cel. Seu aparelho '+model+' já está em conserto. Avisaremos você assim que houver novidades.',
+ 'Em conserto':'Olá, '+name+'! Aqui é da Breno Cel.\n\n📱 Aparelho: '+model+'\n\n📌 Status: Em conserto\n\n🧾 Ordem de serviço nº: '+id+'\n\n💰 Valor: '+(o.valor?money(o.valor):'A combinar')+'.\n\nEstamos trabalhando no seu aparelho e avisaremos quando estiver pronto. Obrigado pela confiança! 🤝',
  'Pronto para retirada':'Olá, '+name+'! Aqui é da Breno Cel.\nO serviço do seu aparelho 👇\nAparelho: '+model+'\nStatus: '+o.status+'\nOrdem de serviço nº: '+id+'\nValor total: '+(o.valor?money(o.valor):'A combinar')+'.\nValor restante a pagar: '+(o.valor?money(o.saldoRestantePago===true?0:(Number(o.valor)*0.5)):'A combinar')+'.\nEntre em contato para combinar a retirada. Obrigado pela confiança!',
  'Concluído':'Olá, '+name+'! Aqui é da Breno Cel.\n\nO serviço do seu aparelho 👇\n\n📱 Aparelho: '+model+'\n\n📌 Status: Concluído\n\n🧾 Ordem de serviço nº: '+id+'\n\n💰 Valor: '+(o.valor?money(o.valor):'A combinar')+'.\n\nEntre em contato para combinar a retirada. Obrigado pela confiança! 🤝',
  'Entregue':'Olá, '+name+'! Aqui é da Breno Cel. Registramos a entrega do seu aparelho '+model+'. Obrigado por confiar em nosso trabalho!',
