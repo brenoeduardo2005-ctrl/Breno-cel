@@ -88,7 +88,33 @@ $('foto').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;c
 function updatePasswordOptions(){const has=$('temSenhaSim').checked;$('passwordOptions').classList.toggle('hidden',!has);const type=has?$('tipoSenha').value:'';$('pinBox').classList.toggle('hidden',type!=='PIN');$('textPasswordBox').classList.toggle('hidden',type!=='Escrita');$('patternBox').classList.toggle('hidden',type!=='Desenho');if(type==='Desenho')drawPatternGrid();if(!has){$('tipoSenha').value='';$('senhaPin').value='';$('senhaTexto').value='';clearPattern();}}
 $('temSenhaSim').addEventListener('change',updatePasswordOptions);$('temSenhaNao').addEventListener('change',updatePasswordOptions);$('tipoSenha').addEventListener('change',updatePasswordOptions);
 function getPatternCoords(w,h){return [h*.2,h*.5,h*.8].flatMap(y=>[w*.2,w*.5,w*.8].map(x=>({x,y})));}
-function drawPatternGrid(){const pc=$('patternCanvas');if(!pc)return;const rect=pc.getBoundingClientRect();const w=rect.width||300,dpr=window.devicePixelRatio||1;pc.width=w*dpr;pc.height=300*dpr;const c=pc.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);c.clearRect(0,0,w,300);const pts=getPatternCoords(w,300);if(patternPoints.length>1){c.beginPath();patternPoints.forEach((idx,i)=>{const p=pts[idx];if(i===0)c.moveTo(p.x,p.y);else c.lineTo(p.x,p.y)});c.strokeStyle='#111';c.lineWidth=3;c.lineCap='round';c.stroke()}pts.forEach((p,i)=>{c.beginPath();c.arc(p.x,p.y,11,0,Math.PI*2);c.fillStyle=patternPoints.includes(i)?'#f5c400':'#fff';c.fill();c.strokeStyle='#111';c.lineWidth=2;c.stroke()});}
+function drawPatternGrid(){
+ const pc=$('patternCanvas');if(!pc)return;
+ const rect=pc.getBoundingClientRect(),w=rect.width||300,h=300,dpr=window.devicePixelRatio||1;
+ pc.width=Math.round(w*dpr);pc.height=Math.round(h*dpr);
+ const c=pc.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);c.clearRect(0,0,w,h);
+ const pts=getPatternCoords(w,h);
+ // Linha principal do padrão
+ if(patternPoints.length>1){
+  c.beginPath();patternPoints.forEach((idx,i)=>{const p=pts[idx];if(i===0)c.moveTo(p.x,p.y);else c.lineTo(p.x,p.y)});
+  c.strokeStyle='#111';c.lineWidth=3;c.lineCap='round';c.lineJoin='round';c.stroke();
+  // Setas entre os pontos indicam o sentido em que o padrão foi desenhado
+  for(let i=1;i<patternPoints.length;i++){
+   const a=pts[patternPoints[i-1]],b=pts[patternPoints[i]];
+   const dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy);if(!len)continue;
+   const ux=dx/len,uy=dy/len,midX=(a.x+b.x)/2,midY=(a.y+b.y)/2;
+   const size=8,tipX=midX+ux*size,tipY=midY+uy*size,baseX=midX-ux*size,baseY=midY-uy*size;
+   c.beginPath();c.moveTo(tipX,tipY);c.lineTo(baseX-uy*5,baseY+ux*5);c.lineTo(baseX+uy*5,baseY-ux*5);c.closePath();c.fillStyle='#d71920';c.fill();
+  }
+ }
+ // Grade e números na ordem em que os pontos foram tocados
+ pts.forEach((p,i)=>{
+  const order=patternPoints.indexOf(i);
+  c.beginPath();c.arc(p.x,p.y,12,0,Math.PI*2);
+  c.fillStyle=order>=0?'#f5c400':'#fff';c.fill();c.strokeStyle='#111';c.lineWidth=2;c.stroke();
+  if(order>=0){c.fillStyle='#111';c.font='bold 12px Arial,sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText(String(order+1),p.x,p.y+0.5);}
+ });
+}
 function patternIndex(e){const pc=$('patternCanvas'),r=pc.getBoundingClientRect(),pts=getPatternCoords(r.width||300,300),x=e.clientX-r.left,y=e.clientY-r.top;let best=-1,dist=Infinity;pts.forEach((p,i)=>{const d=Math.hypot(x-p.x,y-p.y);if(d<dist){dist=d;best=i}});return dist<48?best:-1}
 function clearPattern(){patternPoints=[];if($('patternCanvas'))drawPatternGrid();}
 $('patternCanvas').addEventListener('pointerdown',e=>{if($('tipoSenha').value!=='Desenho')return;patternDrawing=true;patternPoints=[];$('patternCanvas').setPointerCapture(e.pointerId);const i=patternIndex(e);if(i>=0)patternPoints.push(i);drawPatternGrid()});
