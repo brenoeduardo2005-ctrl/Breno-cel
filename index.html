@@ -59,7 +59,7 @@ main{max-width:850px;margin:16px auto;padding:0 12px}.tabs{display:flex;gap:8px;
 </form></div>
 <div class="card no-print"><h2>Enviar ao cliente</h2><p class="small">Um só botão: envia a OS em PDF com uma mensagem contendo o aparelho e o status atual. Confira e confirme o envio no WhatsApp.</p><div id="savedActions" class="actions hidden">
 <button onclick="saveCurrentAndSendOrder()">📲 Enviar OS + status no WhatsApp</button>
-<label for="statusToSend">Escolha o status para enviar</label><select id="statusToSend"><option>Pronto para retirada</option><option>Concluído</option><option>Sem conserto</option></select>
+<label for="statusToSend">Escolha o status para enviar</label><select id="statusToSend"><option>Recebido</option><option>Pronto para retirada</option><option>Concluído</option><option>Sem conserto</option></select>
 <button class="dark" onclick="sendSelectedStatusFromHistory()">📲 Enviar status no WhatsApp</button>
 </div></div>
 </section>
@@ -273,7 +273,8 @@ function sendSelectedStatusFromHistory(){
  saveAll();renderHistory();
  const n=normalizePhone(o.telefone);if(!n){alert('Confira o número de WhatsApp do cliente.');return}
  const msgs={
- 'Pronto para retirada':'Olá, '+o.cliente+'! Boas notícias! Seu aparelho '+o.modelo+' está pronto para retirada na Breno Cel. Pode nos chamar para combinar.',
+ 'Recebido':'Olá, '+o.cliente+'! Aqui é da Breno Cel.\nAparelho: '+o.modelo+'\nStatus: '+chosen+'\nOrdem de serviço nº: '+o.id+'\nValor: '+(o.valor?money(o.valor):'A combinar')+'.',
+ 'Pronto para retirada':'Olá, '+o.cliente+'! Aqui é da Breno Cel.\nO serviço do seu aparelho 👇\nAparelho: '+o.modelo+'\nStatus: '+chosen+'\nOrdem de serviço nº: '+o.id+'\nValor total: '+(o.valor?money(o.valor):'A combinar')+'.\nValor restante a pagar: '+(o.valor?money(o.saldoRestantePago===true?0:(Number(o.valor)*0.5)):'A combinar')+'.\nEntre em contato para combinar a retirada. Obrigado pela confiança!',
  'Concluído':'Olá, '+o.cliente+'! Aqui é da Breno Cel. O serviço do seu aparelho '+o.modelo+' foi concluído. Entre em contato para combinar a retirada. Obrigado pela confiança!',
  'Sem conserto':'Olá, '+o.cliente+'! Aqui é da Breno Cel. Após a avaliação, não foi possível realizar o conserto do seu aparelho '+o.modelo+'. Se tiver dúvidas, estamos à disposição.'
  };
