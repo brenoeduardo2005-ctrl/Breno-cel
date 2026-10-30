@@ -25,7 +25,7 @@ main{max-width:850px;margin:16px auto;padding:0 12px}.tabs{display:flex;gap:8px;
  <div class="home-options"><button type="button" class="home-action" onclick="showForm()">＋ Criar ordem de serviço</button><button type="button" class="home-action home-history" onclick="showHistory()">📋 Visualizar históricos</button></div>
 </section>
 <main id="appMain" class="hidden">
-<div class="tabs no-print"><button class="secondary" onclick="showHome()">⌂ Início</button><button onclick="showForm()">＋ Nova ordem</button><button class="secondary" onclick="showHistory()">📋 Histórico</button></div>
+<div class="tabs no-print"><button class="secondary" onclick="showHome()">⌂ Voltar ao início</button><button id="formTab" onclick="showForm()">＋ Nova ordem</button><button id="historyTab" class="secondary" onclick="showHistory()">📋 Histórico</button></div>
 <section id="formSection">
 <div class="card"><h2 id="formTitle">Nova ordem de serviço</h2>
 <form id="osForm">
@@ -102,8 +102,8 @@ function importBackup(input){
  reader.readAsText(file);
 }
 function showHome(){$('homeSection').classList.remove('hidden');$('appMain').classList.add('hidden');$('formSection').classList.add('hidden');$('historySection').classList.add('hidden');}
-function showForm(){$('homeSection').classList.add('hidden');$('appMain').classList.remove('hidden'); $('formSection').classList.remove('hidden');$('historySection').classList.add('hidden')}
-function showHistory(){$('homeSection').classList.add('hidden');$('appMain').classList.remove('hidden'); $('formSection').classList.add('hidden');$('historySection').classList.remove('hidden');renderHistory()}
+function showForm(){$('homeSection').classList.add('hidden');$('appMain').classList.remove('hidden');$('formSection').classList.remove('hidden');$('historySection').classList.add('hidden');$('formTab').classList.remove('hidden');$('historyTab').classList.add('hidden')}
+function showHistory(){$('homeSection').classList.add('hidden');$('appMain').classList.remove('hidden');$('formSection').classList.add('hidden');$('historySection').classList.remove('hidden');$('formTab').classList.add('hidden');$('historyTab').classList.remove('hidden');renderHistory()}
 function resetForm(){ $('osForm').reset();$('osId').value='';$('entrada').value=today;$('formTitle').textContent='Nova ordem de serviço';photoData='';signatureData='';$('fotoPreview').style.display='none';$('savedActions').classList.add('hidden');clearSignature();currentId=null;updatePasswordOptions();clearPattern();}
 $('foto').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const reader=new FileReader();reader.onload=()=>{photoData=reader.result;$('fotoPreview').src=photoData;$('fotoPreview').style.display='block'};reader.readAsDataURL(f)});
 function updateCredentialConsent(){const show=$('temSenhaSim').checked&&!!$('tipoSenha').value;$('credentialConsentBox').classList.toggle('hidden',!show);}
