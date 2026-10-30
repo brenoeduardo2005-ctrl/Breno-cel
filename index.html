@@ -58,7 +58,7 @@ main{max-width:850px;margin:16px auto;padding:0 12px}.tabs{display:flex;gap:8px;
 <div class="actions no-print"><button type="submit">Salvar ordem</button><button type="button" class="secondary" onclick="resetForm()">Limpar</button></div>
 </form></div>
 <div class="card no-print"><h2>Enviar ao cliente</h2><p class="small">Escolha o status da ordem e envie a mensagem correspondente ao cliente pelo WhatsApp.</p><div id="savedActions" class="actions hidden">
-<label for="statusToSend">Escolha o status para enviar</label><select id="statusToSend"><option>Recebido</option><option>Pronto para retirada</option><option>Concluído</option><option>Sem conserto</option></select>
+<label for="statusToSend">Escolha o status para enviar</label><select id="statusToSend"><option>Recebido</option><option>Em conserto</option><option>Pronto para retirada</option><option>Concluído</option><option>Sem conserto</option></select>
 <button class="dark" onclick="sendSelectedStatusFromHistory()">📲 Enviar status no WhatsApp</button>
 </div></div>
 </section>
